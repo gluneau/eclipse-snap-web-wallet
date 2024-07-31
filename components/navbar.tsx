@@ -16,52 +16,16 @@ import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, Logo, WalletIcon } from "@/components/icons";
-import { SnapWalletAdapter } from '@drift-labs/snap-wallet-adapter';
-import { useEffect, useState } from "react";
+import {
+  GithubIcon,
+  Logo,
+  WalletIcon,
+} from "@/components/icons";
+import { useSolana } from "@/context/SolanaContext";
 
 export const Navbar = () => {
-  const [driftSnapWalletAdapter, setDriftSnapWalletAdapter] = useState<SnapWalletAdapter | null>(null);
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    const adapter = new SnapWalletAdapter();
-    setDriftSnapWalletAdapter(adapter);
-
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
-    const handleError = (error: Error) => console.error(error);
-
-    adapter.on('connect', handleConnect);
-    adapter.on('disconnect', handleDisconnect);
-    adapter.on('error', handleError);
-
-    return () => {
-      adapter.off('connect', handleConnect);
-      adapter.off('disconnect', handleDisconnect);
-      adapter.off('error', handleError);
-    };
-  }, []);
-
-  const handleConnectClick = async () => {
-    if (driftSnapWalletAdapter) {
-      try {
-        await driftSnapWalletAdapter.connect();
-      } catch (error) {
-        console.error("Failed to connect:", error);
-      }
-    }
-  };
-
-  const handleDisconnectClick = async () => {
-    if (driftSnapWalletAdapter) {
-      try {
-        await driftSnapWalletAdapter.disconnect();
-      } catch (error) {
-        console.error("Failed to disconnect:", error);
-      }
-    }
-  };
+  const { solanaAddress, connectWallet, disconnectWallet } = useSolana();
+  const connected = !!solanaAddress;
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -90,7 +54,10 @@ export const Navbar = () => {
         </div>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
+      <NavbarContent
+        className="hidden sm:flex basis-1/5 sm:basis-full"
+        justify="end"
+      >
         <NavbarItem className="hidden sm:flex gap-2">
           <Link isExternal href={siteConfig.links.github}>
             <GithubIcon className="text-default-500" />
@@ -102,7 +69,7 @@ export const Navbar = () => {
             className="text-sm font-normal text-default-600 bg-default-100"
             startContent={<WalletIcon className={connected ? "text-success" : "text-danger"} />}
             variant="flat"
-            onClick={connected ? handleDisconnectClick : handleConnectClick}
+            onClick={connected ? disconnectWallet : connectWallet}
           >
             {connected ? "Disconnect" : "Connect"}
           </Button>
