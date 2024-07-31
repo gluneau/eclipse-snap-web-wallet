@@ -9,6 +9,9 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
+		"@drift-labs/snap-wallet-adapter": "^0.3.0",
+		"@emotion/react": "^11.13.0",
+		"@emotion/styled": "^11.13.0",
 		"@nextui-org/button": "2.0.37",
 		"@nextui-org/code": "2.0.32",
 		"@nextui-org/input": "2.2.4",
@@ -20,7 +23,13 @@
 		"@nextui-org/switch": "2.0.33",
 		"@nextui-org/system": "2.2.5",
 		"@nextui-org/theme": "2.2.9",
+		"@project-serum/sol-wallet-adapter": "^0.2.6",
 		"@react-aria/visually-hidden": "3.8.12",
+		"@solana/wallet-adapter-base": "^0.9.23",
+		"@solana/wallet-adapter-react": "^0.15.35",
+		"@solana/wallet-adapter-react-ui": "^0.9.35",
+		"@solana/wallet-adapter-wallets": "^0.19.32",
+		"@solana/web3.js": "^1.95.2",
 		"clsx": "2.1.1",
 		"framer-motion": "~11.1.1",
 		"intl-messageformat": "^10.5.0",
