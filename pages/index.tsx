@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import { useSolana } from "@/context/SolanaContext";
-import { Connection, PublicKey, PublicKeyInitData, clusterApiUrl } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import {
   Card,
   CardHeader,
@@ -16,6 +16,7 @@ import {
   TableCell,
 } from "@nextui-org/react";
 import { Copy } from "react-feather";
+import SendModal from "@/components/SendModal";
 
 export default function IndexPage() {
   const { solanaAddress } = useSolana();
@@ -26,10 +27,12 @@ export default function IndexPage() {
       const getBalance = async (address: string) => {
         try {
           // const network = clusterApiUrl("mainnet-beta");
-          const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=2045dbd2-6921-48d0-8f19-0fa3d659dc15");
+          const connection = new Connection(
+            "https://mainnet.helius-rpc.com/?api-key=2045dbd2-6921-48d0-8f19-0fa3d659dc15"
+          );
           const publicKey = new PublicKey(address);
           const balance = await connection.getBalance(publicKey);
-          console.log('balance', balance);
+          console.log("balance", balance);
           const balanceInSol = balance / 1e9;
           setBalance(balanceInSol);
         } catch (error) {
@@ -69,7 +72,7 @@ export default function IndexPage() {
             </div>
             <div className="flex gap-4 ml-auto">
               <Button>Receive</Button>
-              <Button>Send</Button>
+              <SendModal />
             </div>
           </CardHeader>
           <Divider />
@@ -96,7 +99,9 @@ export default function IndexPage() {
                     <p className="text-md">$2.01</p>
                   </TableCell>
                   <TableCell>
-                    <p className="text-md">{balance !== null ? balance.toFixed(6) : "Loading..."}</p>
+                    <p className="text-md">
+                      {balance !== null ? balance.toFixed(6) : "Loading..."}
+                    </p>
                   </TableCell>
                 </TableRow>
               </TableBody>
