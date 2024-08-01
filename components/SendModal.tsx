@@ -1,17 +1,28 @@
 import React, { useState } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input } from "@nextui-org/react";
 import { useSolana } from "@/context/SolanaContext";
+import { PublicKey, Transaction } from "@solana/web3.js";
 
 export default function SendModal() {
-  const { solanaAddress } = useSolana();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { solanaAddress, signTransaction } = useSolana();
   const [address, setAddress] = useState("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState(0);
 
-  const handleSend = () => {
-    // Implement the sign and send logic here
-    console.log("Sending", amount, "to", address, "from", solanaAddress);
-    onOpenChange(); // Close the modal
+  const handleSend = async () => {
+    if (solanaAddress && address && amount > 0) {
+      try {
+        const transaction = new Transaction().add(
+          // I'll create my transaction here
+        );
+        const signedTransaction = await signTransaction(transaction);
+        // Check what is being returned here
+        console.log("Signed transaction:", signedTransaction);
+        onOpenChange();
+      } catch (error) {
+        console.error("Failed to sign transaction:", error);
+      }
+    }
   };
 
   return (

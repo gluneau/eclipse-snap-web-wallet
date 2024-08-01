@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { SnapWalletAdapter } from "@drift-labs/snap-wallet-adapter";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 interface SolanaContextProps {
   solanaAddress: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
+  signTransaction: (tx: Transaction | VersionedTransaction) => Promise<Transaction | VersionedTransaction>;
 }
 
 const SolanaContext = createContext<SolanaContextProps | undefined>(undefined);
@@ -19,7 +21,7 @@ export const SolanaProvider = ({ children }: { children: ReactNode }) => {
   
     const handleConnect = async () => {
       console.log("Wallet connected");
-      
+      await fetchSolanaAddress();
     };
     const handleDisconnect = () => {
       console.log("Wallet disconnected");
@@ -65,7 +67,6 @@ export const SolanaProvider = ({ children }: { children: ReactNode }) => {
       console.error("SnapWalletAdapter not initialized");
     }
   };
-  
 
   const disconnectWallet = async () => {
     if (driftSnapWalletAdapter) {
@@ -77,8 +78,21 @@ export const SolanaProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signTransaction = async (tx: Transaction | VersionedTransaction): Promise<Transaction | VersionedTransaction> => {
+    if (driftSnapWalletAdapter) {
+      try {
+        return await driftSnapWalletAdapter.signTransaction(tx);
+      } catch (error) {
+        console.error("Failed to sign transaction:", error);
+        throw error;
+      }
+    } else {
+      throw new Error("SnapWalletAdapter not initialized");
+    }
+  };
+
   return (
-    <SolanaContext.Provider value={{ solanaAddress, connectWallet, disconnectWallet }}>
+    <SolanaContext.Provider value={{ solanaAddress, connectWallet, disconnectWallet, signTransaction }}>
       {children}
     </SolanaContext.Provider>
   );
