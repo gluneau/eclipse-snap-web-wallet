@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "@/layouts/default";
+import Moralis from 'moralis';
 import { useSolana } from "@/context/SolanaContext";
-import { Connection, PublicKey } from "@solana/web3.js";
 import {
   Card,
   CardHeader,
@@ -26,15 +26,21 @@ export default function IndexPage() {
     if (solanaAddress) {
       const getBalance = async (address: string) => {
         try {
-          // const network = clusterApiUrl("mainnet-beta");
-          const connection = new Connection(
-            "https://mainnet.helius-rpc.com/?api-key=2045dbd2-6921-48d0-8f19-0fa3d659dc15"
-          );
-          const publicKey = new PublicKey(address);
-          const balance = await connection.getBalance(publicKey);
-          console.log("balance", balance);
-          const balanceInSol = balance / 1e9;
-          setBalance(balanceInSol);
+          await Moralis.start({
+            apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImFmMzA4ZmU3LTg3NGMtNGNmYi04YTNmLTQxZTQ1NzExYTllZiIsIm9yZ0lkIjoiNDI1IiwidXNlcklkIjoiODMxIiwidHlwZUlkIjoiZjgzMTFhMzktZTExZi00MGY1LWFhOGEtZDgxZGVmOGUxMWNhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTgwOTQ1OTksImV4cCI6NDg1Mzg1NDU5OX0.XhwVYC47NFApTb0TxMCcpXQoPbiso26VraF3udCt2M4"
+          });
+        
+          const response = Moralis.SolApi.account.getPortfolio({
+            "network": "mainnet",
+            "address": address
+          });
+
+          const portfolio = (await response).result;
+          console.log("portfolio", portfolio);
+
+          // Correctly access the native balance and convert it to SOL
+          const solBalance = (portfolio.nativeBalance as any) / 1000000000;
+          setBalance(solBalance);
         } catch (error) {
           console.error("Error getting balance:", error);
         }
@@ -51,7 +57,7 @@ export default function IndexPage() {
           <CardHeader className="flex justify-between gap-4 items-center">
             <div className="flex flex-col">
               <p className="text-md font-bold">Total portfolio value</p>
-              <p className="text-2xl font-bold">$2.01</p>
+              <p className="text-2xl font-bold">${(balance * 100.58).toFixed(2)}</p>
             </div>
             <Divider orientation="vertical" />
             <div className="flex flex-col">
@@ -96,7 +102,7 @@ export default function IndexPage() {
                     <p className="text-small text-green-600">+3.09%</p>
                   </TableCell>
                   <TableCell>
-                    <p className="text-md">$2.01</p>
+                    <p className="text-md">${(balance * 100.58).toFixed(2)}</p>
                   </TableCell>
                   <TableCell>
                     <p className="text-md">
