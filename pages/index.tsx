@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardBody,
   Divider,
-  Button,
   Table,
   TableHeader,
   TableColumn,
@@ -18,6 +17,35 @@ import {
 } from "@nextui-org/react";
 import { Copy } from "react-feather";
 import SendModal from "@/components/SendModal";
+import ReceiveModal from "@/components/ReceiveModal";
+
+const AnimatedCopyIcon = ({ address }: { address?: string | null }) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleClick = () => {
+    if (address) {
+      navigator.clipboard.writeText(address);
+      setIsAnimating(true);
+      setTimeout(() => setIsAnimating(false), 1000); // Reset after 1 second
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="ml-2 relative"
+      disabled={!address}
+    >
+      <Copy size="16" className={isAnimating ? "animate-ping" : ""} />
+      {isAnimating && (
+        <Copy
+          size="16"
+          className="absolute top-0 left-0 text-green-500"
+        />
+      )}
+    </button>
+  );
+};
 
 export default function IndexPage() {
   interface Token {
@@ -97,9 +125,7 @@ export default function IndexPage() {
         </TableCell>
         <TableCell>
           <p className="text-md">
-            {typeof token.amount === "number"
-              ? (token.amount / 1000000).toFixed(6)
-              : String(token.amount)}
+            {token.amount && (Number(token.amount) / 1000000).toFixed(6)}
           </p>
         </TableCell>
       </TableRow>
@@ -124,18 +150,11 @@ export default function IndexPage() {
                 <p className="text-small text-default-500">
                   {solanaAddress || "Connect your wallet to get started"}
                 </p>
-                <button
-                  onClick={() => {
-                    console.log("click button");
-                  }}
-                  className="ml-2"
-                >
-                  <Copy size="16" />
-                </button>
+                <AnimatedCopyIcon address={solanaAddress} />
               </div>
             </div>
             <div className="flex gap-4 ml-auto">
-              <Button>Receive</Button>
+              {solanaAddress && <ReceiveModal address={solanaAddress} />}
               <SendModal />
             </div>
           </CardHeader>
