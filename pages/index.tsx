@@ -4,6 +4,7 @@ import Moralis from "moralis";
 import { SolAddress, SolNative } from "@moralisweb3/common-sol-utils";
 import { useSolana } from "@/context/SolanaContext";
 import {
+  Avatar,
   Card,
   CardHeader,
   CardBody,
@@ -77,6 +78,10 @@ export default function IndexPage() {
     }
   };
 
+  const getTokenLogoUrl = (mintAddress: string) => {
+    return `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${mintAddress}/logo.png`;
+  };
+
   useEffect(() => {
     if (solanaAddress) {
       const getBalance = async (address: string) => {
@@ -129,9 +134,12 @@ export default function IndexPage() {
     {
       key: "sol",
       name: (
-        <div>
-          <p className="text-md font-bold">Solana</p>
-          <p className="text-small text-default-500">SOL</p>
+        <div className="flex items-center gap-3">
+          <Avatar src={getTokenLogoUrl("So11111111111111111111111111111111111111112")} size="sm" />
+          <div>
+            <p className="text-md font-bold">Solana</p>
+            <p className="text-small text-default-500">SOL</p>
+          </div>
         </div>
       ),
       price: (
@@ -145,9 +153,12 @@ export default function IndexPage() {
     ...tokens.map((token, index) => ({
       key: index.toString(),
       name: (
-        <div>
-          <p className="text-md font-bold">{token.name || 'Unknown'}</p>
-          <p className="text-small text-default-500">{token.symbol || 'N/A'}</p>
+        <div className="flex items-center gap-3">
+          <Avatar src={getTokenLogoUrl(token.mint.address)} size="sm" />
+          <div>
+            <p className="text-md font-bold">{token.name || 'Unknown'}</p>
+            <p className="text-small text-default-500">{token.symbol || 'N/A'}</p>
+          </div>
         </div>
       ),
       price: (
