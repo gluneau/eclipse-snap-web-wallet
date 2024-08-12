@@ -62,6 +62,7 @@ export default function IndexPage() {
   const { solanaAddress } = useSolana();
   const [balance, setBalance] = useState(0);
   const [totalValue, setTotalValue] = useState(0);
+  const [solPrice, setSolPrice] = useState(0);
 
   const getTokenPrice = async (address: string): Promise<number> => {
     try {
@@ -96,6 +97,10 @@ export default function IndexPage() {
           const solBalance = (portfolio.nativeBalance as any) / 1000000000;
           setBalance(solBalance);
 
+          // Fetch SOL price
+          const currentSolPrice = await getTokenPrice("So11111111111111111111111111111111111111112");
+          setSolPrice(currentSolPrice);
+
           // Fetch token prices and calculate values
           const tokensWithPrices = await Promise.all(portfolio.tokens.map(async (token: any) => {
             const tokenTyped = token as Token;
@@ -108,7 +113,7 @@ export default function IndexPage() {
 
           // Calculate total portfolio value
           const tokenValue = tokensWithPrices.reduce((acc, token) => acc + (token.value || 0), 0);
-          const solValue = solBalance * 100.58; // Assuming $100.58 is the current SOL price
+          const solValue = solBalance * currentSolPrice;
           setTotalValue(tokenValue + solValue);
 
         } catch (error) {
@@ -131,10 +136,10 @@ export default function IndexPage() {
       ),
       price: (
         <div>
-          <p className="text-md">$100.58</p>
+          <p className="text-md">${solPrice.toFixed(2)}</p>
         </div>
       ),
-      value: <p className="text-md">${(balance * 100.58).toFixed(2)}</p>,
+      value: <p className="text-md">${(balance * solPrice).toFixed(2)}</p>,
       amount: <p className="text-md">{balance !== null ? balance.toFixed(6) : "Loading..."}</p>,
     },
     ...tokens.map((token, index) => ({
