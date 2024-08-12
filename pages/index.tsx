@@ -54,11 +54,27 @@ export default function IndexPage() {
     amount: SolNative;
     name: string | null;
     symbol: string | null;
+    price?: number;
+    value?: number;
   }
 
   const [tokens, setTokens] = useState<Token[]>([]);
   const { solanaAddress } = useSolana();
   const [balance, setBalance] = useState(0);
+  const [totalValue, setTotalValue] = useState(0);
+
+  const getTokenPrice = async (address: string): Promise<number> => {
+    try {
+      const response = await Moralis.SolApi.token.getTokenPrice({
+        network: "mainnet",
+        address: address
+      });
+      return response.result.usdPrice ?? 0;
+    } catch (error) {
+      console.error(`Error fetching price for token ${address}:`, error);
+      return 0;
+    }
+  };
 
   useEffect(() => {
     if (solanaAddress) {
@@ -69,23 +85,32 @@ export default function IndexPage() {
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImFmMzA4ZmU3LTg3NGMtNGNmYi04YTNmLTQxZTQ1NzExYTllZiIsIm9yZ0lkIjoiNDI1IiwidXNlcklkIjoiODMxIiwidHlwZUlkIjoiZjgzMTFhMzktZTExZi00MGY1LWFhOGEtZDgxZGVmOGUxMWNhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTgwOTQ1OTksImV4cCI6NDg1Mzg1NDU5OX0.XhwVYC47NFApTb0TxMCcpXQoPbiso26VraF3udCt2M4",
           });
 
-          const response = Moralis.SolApi.account.getPortfolio({
+          const response = await Moralis.SolApi.account.getPortfolio({
             network: "mainnet",
             address: address,
           });
 
-          const portfolio = (await response).result;
+          const portfolio = response.result;
           console.log("portfolio", portfolio);
 
           const solBalance = (portfolio.nativeBalance as any) / 1000000000;
           setBalance(solBalance);
 
-          // Set tokens array
-          console.log(
-            "Tokens before rendering:",
-            JSON.parse(JSON.stringify(portfolio.tokens))
-          );
-          setTokens(portfolio.tokens as unknown as Token[]);
+          // Fetch token prices and calculate values
+          const tokensWithPrices = await Promise.all(portfolio.tokens.map(async (token: any) => {
+            const tokenTyped = token as Token;
+            const price = await getTokenPrice(tokenTyped.mint.address);
+            const value = price * Number(tokenTyped.amount) / 1000000;
+            return { ...tokenTyped, price, value };
+          }));
+
+          setTokens(tokensWithPrices);
+
+          // Calculate total portfolio value
+          const tokenValue = tokensWithPrices.reduce((acc, token) => acc + (token.value || 0), 0);
+          const solValue = solBalance * 100.58; // Assuming $100.58 is the current SOL price
+          setTotalValue(tokenValue + solValue);
+
         } catch (error) {
           console.error("Error getting balance:", error);
         }
@@ -107,7 +132,6 @@ export default function IndexPage() {
       price: (
         <div>
           <p className="text-md">$100.58</p>
-          <p className="text-small text-green-600">+3.09%</p>
         </div>
       ),
       value: <p className="text-md">${(balance * 100.58).toFixed(2)}</p>,
@@ -123,11 +147,10 @@ export default function IndexPage() {
       ),
       price: (
         <div>
-          <p className="text-md">-</p>
-          <p className="text-small text-default-500">N/A</p>
+          <p className="text-md">${token.price ? token.price.toFixed(2) : '-'}</p>
         </div>
       ),
-      value: <p className="text-md">-</p>,
+      value: <p className="text-md">${token.value ? token.value.toFixed(2) : '-'}</p>,
       amount: <p className="text-md">{token.amount ? (Number(token.amount) / 1000000).toFixed(6) : '0'}</p>,
     })),
   ];
@@ -140,7 +163,7 @@ export default function IndexPage() {
             <div className="flex flex-col">
               <p className="text-md font-bold">Total portfolio value</p>
               <p className="text-2xl font-bold">
-                ${(balance * 100.58).toFixed(2)}
+                ${totalValue.toFixed(2)}
               </p>
             </div>
             <Divider orientation="vertical" />
@@ -164,7 +187,7 @@ export default function IndexPage() {
             <Table aria-label="Assets table">
               <TableHeader>
                 <TableColumn>NAME</TableColumn>
-                <TableColumn>PRICE/24H CHANGE</TableColumn>
+                <TableColumn>PRICE</TableColumn>
                 <TableColumn>VALUE</TableColumn>
                 <TableColumn>AMOUNT</TableColumn>
               </TableHeader>
