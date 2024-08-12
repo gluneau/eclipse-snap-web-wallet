@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import Moralis from "moralis";
-import { SolAddress, SolNative } from "@moralisweb3/common-sol-utils";
+import { SolNetwork, SolAddress, SolNative } from "@moralisweb3/common-sol-utils";
 import { useSolana } from "@/context/SolanaContext";
 import {
   Avatar,
@@ -68,7 +68,7 @@ export default function IndexPage() {
   const getTokenPrice = async (address: string): Promise<number> => {
     try {
       const response = await Moralis.SolApi.token.getTokenPrice({
-        network: "mainnet",
+        network: SolNetwork.MAINNET,
         address: address
       });
       return response.result.usdPrice ?? 0;
@@ -92,7 +92,7 @@ export default function IndexPage() {
           });
 
           const response = await Moralis.SolApi.account.getPortfolio({
-            network: "mainnet",
+            network: SolNetwork.MAINNET,
             address: address,
           });
 
