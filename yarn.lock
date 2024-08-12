@@ -981,6 +981,13 @@
   dependencies:
     axios "^1.2.1"
 
+"@moralisweb3/common-core@^2.27.2":
+  version "2.27.2"
+  resolved "https://registry.yarnpkg.com/@moralisweb3/common-core/-/common-core-2.27.2.tgz#9c588c40e898ff65bdfbaf467fdfe2e3f8621dee"
+  integrity sha512-/rGs2kdK/f41LizpfWTMfkyO5zFkbiOrn6wxpCTXzrzGequ+D5fWSCeYvA9BEH/XVH0aYR89eVYtQgxs5Zd0Dg==
+  dependencies:
+    axios "^1.2.1"
+
 "@moralisweb3/common-evm-utils@^2.27.1":
   version "2.27.1"
   resolved "https://registry.yarnpkg.com/@moralisweb3/common-evm-utils/-/common-evm-utils-2.27.1.tgz#35dc188a58afcb11a4d9359ee5872cb2c97c5f37"
@@ -997,6 +1004,16 @@
   integrity sha512-4Ev0fiMiXwOtYa3KiUla4Co1Bq3PJJ3a01Haxf2+WKdiZ4IWSFMvxRj3nlMU+o9ZXKk1UQXohR9A0vmeVHuGIg==
   dependencies:
     "@moralisweb3/common-core" "^2.27.1"
+    bn.js "^5.2.1"
+    bs58 "^5.0.0"
+    buffer "^6.0.3"
+
+"@moralisweb3/common-sol-utils@^2.27.2":
+  version "2.27.2"
+  resolved "https://registry.yarnpkg.com/@moralisweb3/common-sol-utils/-/common-sol-utils-2.27.2.tgz#0605d749a46c0f2b7c35e02b973e38b257e52718"
+  integrity sha512-MzIFxFLtz9a8SVTvfh/WS1f7fBENtxAzpF3xiXI3SBKuoZExnR/ah8pKzY4DVL8FpswoFzVsO+yVBmToxc0aSw==
+  dependencies:
+    "@moralisweb3/common-core" "^2.27.2"
     bn.js "^5.2.1"
     bs58 "^5.0.0"
     buffer "^6.0.3"
