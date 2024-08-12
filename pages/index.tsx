@@ -52,11 +52,11 @@ export default function IndexPage() {
     associatedTokenAddress: SolAddress;
     mint: SolAddress;
     amount: SolNative;
-    name: string;
-    symbol: string;
+    name: string | null;
+    symbol: string | null;
   }
 
-  const [tokens, setTokens] = useState<Token[]>([]); // Initialize as an empty array
+  const [tokens, setTokens] = useState<Token[]>([]);
   const { solanaAddress } = useSolana();
   const [balance, setBalance] = useState(0);
 
@@ -95,42 +95,42 @@ export default function IndexPage() {
     }
   }, [solanaAddress]);
 
-  // Function to render token rows
-  const renderTokenRows = () => {
-    if (!tokens || tokens.length === 0) {
-      return (
-        <TableRow>
-          <TableCell>-</TableCell>
-          <TableCell>-</TableCell>
-          <TableCell>-</TableCell>
-          <TableCell className="text-center">
-            <p className="text-md text-default-500">No tokens available</p>
-          </TableCell>
-        </TableRow>
-      );
-    }
-
-    return tokens.map((token, index) => (
-      <TableRow key={index}>
-        <TableCell>
-          <p className="text-md font-bold">{String(token.name)}</p>
-          <p className="text-small text-default-500">{String(token.symbol)}</p>
-        </TableCell>
-        <TableCell>
+  const rows = [
+    {
+      key: "sol",
+      name: (
+        <div>
+          <p className="text-md font-bold">Solana</p>
+          <p className="text-small text-default-500">SOL</p>
+        </div>
+      ),
+      price: (
+        <div>
+          <p className="text-md">$100.58</p>
+          <p className="text-small text-green-600">+3.09%</p>
+        </div>
+      ),
+      value: <p className="text-md">${(balance * 100.58).toFixed(2)}</p>,
+      amount: <p className="text-md">{balance !== null ? balance.toFixed(6) : "Loading..."}</p>,
+    },
+    ...tokens.map((token, index) => ({
+      key: index.toString(),
+      name: (
+        <div>
+          <p className="text-md font-bold">{token.name || 'Unknown'}</p>
+          <p className="text-small text-default-500">{token.symbol || 'N/A'}</p>
+        </div>
+      ),
+      price: (
+        <div>
           <p className="text-md">-</p>
           <p className="text-small text-default-500">N/A</p>
-        </TableCell>
-        <TableCell>
-          <p className="text-md">-</p>
-        </TableCell>
-        <TableCell>
-          <p className="text-md">
-            {token.amount && (Number(token.amount) / 1000000).toFixed(6)}
-          </p>
-        </TableCell>
-      </TableRow>
-    ));
-  };
+        </div>
+      ),
+      value: <p className="text-md">-</p>,
+      amount: <p className="text-md">{token.amount ? (Number(token.amount) / 1000000).toFixed(6) : '0'}</p>,
+    })),
+  ];
 
   return (
     <DefaultLayout>
@@ -168,26 +168,15 @@ export default function IndexPage() {
                 <TableColumn>VALUE</TableColumn>
                 <TableColumn>AMOUNT</TableColumn>
               </TableHeader>
-              <TableBody>
-                <TableRow key="0">
-                  <TableCell>
-                    <p className="text-md font-bold">Solana</p>
-                    <p className="text-small text-default-500">SOL</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-md">$100.58</p>
-                    <p className="text-small text-green-600">+3.09%</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-md">${(balance * 100.58).toFixed(2)}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-md">
-                      {balance !== null ? balance.toFixed(6) : "Loading..."}
-                    </p>
-                  </TableCell>
-                </TableRow>
-                {renderTokenRows()}
+              <TableBody items={rows}>
+                {(item) => (
+                  <TableRow key={item.key}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.price}</TableCell>
+                    <TableCell>{item.value}</TableCell>
+                    <TableCell>{item.amount}</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardBody>
